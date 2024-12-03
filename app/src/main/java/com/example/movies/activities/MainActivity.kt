@@ -1,6 +1,5 @@
 package com.example.movies.activities
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -74,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    @SuppressLint("StringFormatInvalid")
     private fun fetchMovies(query: String) {
         binding.loadingProgressBar.visibility = View.VISIBLE
         val apiService = RetrofitProvider.getRetrofit()
