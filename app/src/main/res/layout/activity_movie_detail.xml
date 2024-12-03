@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".activities.MovieDetailActivity">
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -19,8 +28,8 @@
         <ImageView
             android:id="@+id/posterImageView"
             android:layout_width="match_parent"
-            android:layout_height="240dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="300dp"
+            android:scaleType="fitCenter" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -36,7 +45,7 @@
                     android:id="@+id/item_movie_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/frozen_2"
+                    android:text="@string/movie"
                     android:textAppearance="?attr/textAppearanceHeadline5"
                     android:textColor="@color/black"
                     android:textStyle="bold" />
@@ -117,7 +126,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    tools:text="James Gunn"
+                    tools:text="Directors"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/genreTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    tools:text="Genres"
                     android:textSize="18sp" />
 
                 <LinearLayout

@@ -3,13 +3,14 @@ package com.example.movies.activities
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.movies.R
+import androidx.lifecycle.lifecycleScope
 import com.example.movies.data.entities.Movie
+import com.example.movies.databinding.ActivityMovieDetailBinding
 import com.example.movies.utils.RetrofitProvider
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
@@ -22,13 +23,12 @@ class MovieDetailActivity : AppCompatActivity() {
         const val EXTRA_MOVIE_ID = "MOVIE_ID"
     }
 
-    private lateinit var binding: MovieDetailActivityBinding
+    private lateinit var binding: ActivityMovieDetailBinding
     private lateinit var movie: Movie
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = MovieDetailActivityBinding.inflate(layoutInflater)
-
+        binding = ActivityMovieDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
@@ -37,23 +37,23 @@ class MovieDetailActivity : AppCompatActivity() {
             insets
         }
 
-        // Enable the back button in the action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Get movie ID from intent and fetch movie details
         val id = intent.getStringExtra(EXTRA_MOVIE_ID)
         if (id != null) {
-            fetchMovie(id)
+            lifecycleScope.launch {
+                getMovieDetails(id)
+            }
         } else {
             Log.e("MovieDetailActivity", "Movie ID not found in the intent")
-            finish() // Close the activity if no movie ID is provided
+            finish()
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish()  // Close the activity on back button press
+                finish()
                 return true
             }
         }
@@ -68,35 +68,51 @@ class MovieDetailActivity : AppCompatActivity() {
         binding.countryTextView.text = movie.country
         binding.runtimeTextView.text = movie.runtime
         binding.yearTextView.text = movie.year
-        binding.directorTextView.text = movie.director
+        binding.directorTextView.text = "Directed by ${movie.director}"
+        binding.genreTextView.text = "Genres: ${movie.genre}"
         binding.plotTextView.text = movie.plot
     }
 
-    private fun fetchMovie(id: String) {
+    private suspend fun getMovieDetails(imdbId: String) {
         val service = RetrofitProvider.getRetrofit()
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                // Replace with the correct method for fetching movie by ID
-                val response = service.fetchMoviesByTitle(id, "fb7aca4")
+            binding.loadingProgressBar.visibility = View.VISIBLE
+        }
 
-                if (response.response == "True") {
-                    movie = response.movie
+        try {
+            val response = service.fetchMovieById(imdbId, "fb7aca4")
 
-                    withContext(Dispatchers.Main) {
-                        loadData()
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MovieDetailActivity, "Movie not found", Toast.LENGTH_SHORT).show()
-                    }
+            if (response.response == "True") {
+                movie = Movie(
+                    imdbID = response.imdbID,
+                    title = response.title,
+                    year = response.year,
+                    poster = response.poster,
+                    plot = response.plot,
+                    runtime = response.runtime,
+                    director = response.director,
+                    genre = response.genre,
+                    country = response.country
+                )
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    loadData()
+                    binding.loadingProgressBar.visibility = View.GONE
                 }
-            } catch (e: Exception) {
-                Log.e("API", e.stackTraceToString())
+            } else {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MovieDetailActivity, "Error fetching movie data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MovieDetailActivity, "Movie not found", Toast.LENGTH_SHORT).show()
+                    binding.loadingProgressBar.visibility = View.GONE
                 }
+            }
+        } catch (e: Exception) {
+            Log.e("APIError", e.stackTraceToString())
+            CoroutineScope(Dispatchers.Main).launch {
+                Toast.makeText(this@MovieDetailActivity, "Error fetching movie data", Toast.LENGTH_SHORT).show()
+                binding.loadingProgressBar.visibility = View.GONE
             }
         }
     }
 }
+

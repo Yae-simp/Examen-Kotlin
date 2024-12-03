@@ -9,16 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.movies.R
 import com.example.movies.adapter.MoviesAdapter
 import com.example.movies.data.entities.Movie
 import com.example.movies.databinding.ActivityMainBinding
 import com.example.movies.utils.RetrofitProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,18 +35,19 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         adapter = MoviesAdapter(movieList) { position ->
             val movie = movieList[position]
             navigateToDetail(movie)
         }
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = GridLayoutManager(this, 1) //Grid layout with one column.
+        binding.recyclerView.layoutManager = GridLayoutManager(this, 2)
         fetchMovies("marvel")
     }
 
     private fun navigateToDetail(movie: Movie) {
         val intent = Intent(this, MovieDetailActivity::class.java)
-        intent.putExtra(MovieDetailActivity.EXTRA_MOVIE_ID, movie.title)
+        intent.putExtra(MovieDetailActivity.EXTRA_MOVIE_ID, movie.imdbID)
         startActivity(intent)
     }
 
@@ -71,43 +71,30 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    //Fetches movies from the server
     private fun fetchMovies(query: String) {
-        // Show loading progress bar
         binding.loadingProgressBar.visibility = View.VISIBLE
-
-        // Create Retrofit instance
         val apiService = RetrofitProvider.getRetrofit()
 
-        // Launch a coroutine for background task
-        lifecycleScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Make the API call and get the response
                 val response = apiService.fetchMoviesByTitle(query, "fb7aca4")
 
-                // Switch to the main thread to update the UI
-                withContext(Dispatchers.Main) {
-                    // Hide the loading progress bar
+                CoroutineScope(Dispatchers.Main).launch {
                     binding.loadingProgressBar.visibility = View.GONE
-
-                    // If movies are found, update the RecyclerView and adapter
                     if (response.response == "True") {
                         binding.emptyView.visibility = View.GONE
                         binding.recyclerView.visibility = View.VISIBLE
-
-                        // Clear old movie list and add new items from the response
                         movieList.clear()
-                        movieList.addAll(response.search) // Ensure response.search is a List<Movie>
+                        movieList.addAll(response.search)
                         adapter.updateItems(movieList)
                     } else {
-                        // Show empty view if no results
                         binding.recyclerView.visibility = View.GONE
                         binding.emptyView.visibility = View.VISIBLE
                         binding.noResultsTextView.text = getString(R.string.no_results, query)
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
+                CoroutineScope(Dispatchers.Main).launch {
                     Log.e("APIError", "Error fetching movies: ${e.message}")
                     binding.loadingProgressBar.visibility = View.GONE
                     binding.recyclerView.visibility = View.GONE

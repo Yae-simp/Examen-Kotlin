@@ -2,11 +2,11 @@
     <string name="app_name">Movies</string>
     <string name="item_movie_year_text_view">2002</string>
     <string name="item_movie_title">Movie</string>
-    <string name="no_results">No results for</string>
+    <string name="no_results">No results for your query. Try a more precise name, please.</string>
     <string name="search">Search</string>
-    <string name="frozen_2">Frozen 2</string>
-    <string name="country">Spain</string>
+    <string name="movie">Movie</string>
+    <string name="country">Country</string>
     <string name="runtime">Runtime</string>
-    <string name="year">2002</string>
-    <string name="plot">PLot:</string>
+    <string name="year">Year</string>
+    <string name="plot">Plot:</string>
 </resources>
