@@ -83,17 +83,7 @@ class MovieDetailActivity : AppCompatActivity() {
             val response = service.fetchMovieById(imdbId, "fb7aca4")
 
             if (response.response == "True") {
-                movie = Movie(
-                    imdbID = response.imdbID,
-                    title = response.title,
-                    year = response.year,
-                    poster = response.poster,
-                    plot = response.plot,
-                    runtime = response.runtime,
-                    director = response.director,
-                    genre = response.genre,
-                    country = response.country
-                )
+                movie = response
 
                 CoroutineScope(Dispatchers.Main).launch {
                     loadData()
