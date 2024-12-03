@@ -36,6 +36,8 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        supportActionBar?.title = "Search for more movies here ->"
+
         adapter = MoviesAdapter(movieList) { position ->
             val movie = movieList[position]
             navigateToDetail(movie)

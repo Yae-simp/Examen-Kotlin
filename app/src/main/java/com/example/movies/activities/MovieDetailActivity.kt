@@ -16,7 +16,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MovieDetailActivity : AppCompatActivity() {
     companion object {
@@ -101,7 +100,7 @@ class MovieDetailActivity : AppCompatActivity() {
                     binding.loadingProgressBar.visibility = View.GONE
                 }
             } else {
-                withContext(Dispatchers.Main) {
+                CoroutineScope(Dispatchers.Main).launch {
                     Toast.makeText(this@MovieDetailActivity, "Movie not found", Toast.LENGTH_SHORT).show()
                     binding.loadingProgressBar.visibility = View.GONE
                 }
