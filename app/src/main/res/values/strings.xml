@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Movies</string>
+    <string name="item_movie_year_text_view">2002</string>
+    <string name="item_movie_title">Movie</string>
+    <string name="no_results">No results for</string>
+    <string name="search">Search</string>
+    <string name="frozen_2">Frozen 2</string>
+    <string name="country">Spain</string>
+    <string name="runtime">Runtime</string>
+    <string name="year">2002</string>
+    <string name="plot">PLot:</string>
 </resources>
